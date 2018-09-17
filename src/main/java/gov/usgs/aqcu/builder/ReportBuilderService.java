@@ -76,9 +76,14 @@ public class ReportBuilderService {
 		metadata.setRequestParameters(requestParameters);
 		metadata.setStationId(stationId);
 		metadata.setStationName(locationDescriptionListService.getByLocationIdentifier(stationId).getName());
-		metadata.setTimezone(utcOffset);
 		metadata.setTimeSeriesParams(primaryParameter);
 		metadata.setTimeseriesLabel(timeSeriesLabel);
+		metadata.setTimezone(AqcuTimeUtils.getTimezone(utcOffset));
+		// Repgen just pulls the date for the headings, so we need to be sure and get
+		// the "correct" date - its internal filtering is potentially slightly skewed
+		// by this.
+		metadata.setStartDate(requestParameters.getStartInstant(ZoneOffset.UTC));
+		metadata.setEndDate(requestParameters.getEndInstant(ZoneOffset.UTC));
 		
 		return metadata;
 	}

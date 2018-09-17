@@ -8,7 +8,6 @@ package gov.usgs.aqcu.model;
 import java.util.List;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.QualifierMetadata;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
 
 import java.time.temporal.Temporal;
 

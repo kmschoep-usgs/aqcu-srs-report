@@ -24,6 +24,7 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Grad
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Inspection;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionActivity;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionType;
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.DischargeActivity;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
 
@@ -102,12 +103,12 @@ public class ReportBuilderService {
 		//Readings
 		
 		for (FieldVisitDescription visit: fieldVisits) {
-			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
-			List<Readings> srsReading = getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES);
+			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier(), "Inspection");
+			List<Readings> srsReading = getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES, primaryDescription.getParameter());
 			srsReadings.addAll(srsReading);
 		}
 		
-		report.setReadings(srsReadings);
+		report.setReadings(selectedParameter(primaryDescription.getParameter(), srsReadings));
 		
 		//Report Metadata
 		report.setReportMetadata(getReportMetadata(requestParameters,
@@ -130,7 +131,7 @@ public class ReportBuilderService {
 	 * @param allowedTypes The allowed types of readings to collect
 	 * @return The list of extracted readings
 	 */
-	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, List<String> allowedTypes){
+	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, List<String> allowedTypes, String parameter){
 		List<Readings> result = new ArrayList<>();
 
 		InspectionActivity activity = fieldVisitResponse.getInspectionActivity();
@@ -171,6 +172,7 @@ public class ReportBuilderService {
 			result.addAll(extractEmptyCrestStageReadings(visit, inspections, activity));
 			result.addAll(extractEmptyMaxMinIndicatorReadings(visit, inspections, activity));
 			result.addAll(extractEmptyHighWaterMarkReadings(visit, inspections, activity));
+			result.removeAll(excludedTypes(result));
 		}			
 		
 		return result;
@@ -274,6 +276,24 @@ public class ReportBuilderService {
 		return metadata;
 	}
 
-
+	private List<Readings> excludedTypes(List<Readings> inReadings){
+		List<Readings> outReadings = new ArrayList<>();
+		for (Readings reading: inReadings) {
+			if (EXCLUDED_READING_TYPES.contains(reading.getType())) {
+				outReadings.add(reading);
+			}
+		}
+		return outReadings;
+	}
+	
+	private List<Readings> selectedParameter(String selectedParameter, List<Readings> inReadings){
+		List<Readings> outReadings = new ArrayList<>();
+		for (Readings reading: inReadings) {
+			if (reading.getParameter().equals(selectedParameter)) {
+				outReadings.add(reading);
+			}
+		}
+		return outReadings;
+	}
 
 }

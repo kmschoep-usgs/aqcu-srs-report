@@ -32,7 +32,7 @@ public class FieldVisitDataServiceTest {
 
 	@Test
 	public void get_happyTest() {
-		FieldVisitDataServiceResponse actual = service.get("a");
+		FieldVisitDataServiceResponse actual = service.get("a", "b");
 		assertEquals(expected, actual);
 	}
 

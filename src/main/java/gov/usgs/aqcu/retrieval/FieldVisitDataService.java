@@ -19,11 +19,12 @@ public class FieldVisitDataService {
 		this.aquariusRetrievalService = aquariusRetrievalService;
 	}
 
-	public FieldVisitDataServiceResponse get(String fieldVisitIdentifier) {
+	public FieldVisitDataServiceResponse get(String fieldVisitIdentifier, String discreteMeasurementActivity) {
 		try {
 			FieldVisitDataServiceRequest request = new FieldVisitDataServiceRequest()
 					.setFieldVisitIdentifier(fieldVisitIdentifier)
-					.setApplyRounding(true);
+					.setApplyRounding(true)
+					.setDiscreteMeasurementActivity(discreteMeasurementActivity);
 			FieldVisitDataServiceResponse fieldVisitResponse  = aquariusRetrievalService.executePublishApiRequest(request);
 			return fieldVisitResponse;
 		} catch (Exception e) {

@@ -23,6 +23,7 @@ public class SensorReadingSummaryReading {
 	private String recorderMethod;
 	private String recorderValue;
 	private String recorderType;
+	private String recorderUncertainty;
 	private Temporal nearestCorrectedTime;
 	private List<QualifierMetadata> qualifiers;
 	private String nearestCorrectedValue;
@@ -151,6 +152,12 @@ public class SensorReadingSummaryReading {
 	}
 	public void setMonitoringMethod(String monitoringMethod) {
 		this.monitoringMethod = monitoringMethod;
+	}
+	public String getRecorderUncertainty() {
+		return recorderUncertainty;
+	}
+	public void setRecorderUncertainty(String recorderUncertainty) {
+		this.recorderUncertainty = recorderUncertainty;
 	}
 	
 }

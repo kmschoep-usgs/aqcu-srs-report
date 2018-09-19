@@ -28,24 +28,6 @@ public class Readings {
 	private final String type;
 	private final String sublocation;
 
-	/**
-	 * Constructor that creates an AQCU Readings report object with all of 
-	 * the necessary and relevant  parameters.
-	 * 
-	 * Sublocation ID, isValid, Qualifier, 
-	 * @param fieldVisitIdentifier The unique field visit identifier associated with these readings
-	 * @param visitStatus The visit status associated with these readings
-	 * @param parameter The parameter of the readings
-	 * @param type The type of readings recorded
-	 * @param party The associated party information describing the participants in these readings
-	 * @param comments Comments associated with these readings
-	 * @param sublocation The unique sub-location id associated with these readings
-	 * @param monitoringMethod The monitoring method used when gathering these readings
-	 * @param time The time that these readings were collected
-	 * @param uncertainty The uncertainty value associated with these readings
-	 * @param value The value associated with these readings
-	 * @param visitTime The time when the the field visit which gathered the readings occurred
-	 */
 	public Readings(String fieldVisitIdentifier, String visitStatus, String party, String type, String sublocation, String parameter, String monitoringMethod, Temporal time, String value,
 			String uncertainty, Temporal visitTime, List<String> comments){
 		this.fieldVisitIdentifier = fieldVisitIdentifier;
@@ -149,6 +131,7 @@ public class Readings {
 	public String getSublocation() {
 		return sublocation;
 	}
+
 
 	/**
 	 *

@@ -7,27 +7,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataCorrectedServiceRequest;
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataRawServiceRequest;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
 
 @Repository
-public class TimeSeriesDataCorrectedService {
-	private static final Logger LOG = LoggerFactory.getLogger(TimeSeriesDataCorrectedService.class);
+public class TimeSeriesDataRawService {
+	private static final Logger LOG = LoggerFactory.getLogger(TimeSeriesDataRawService.class);
 
 	private AquariusRetrievalService aquariusRetrievalService;
 
 	@Autowired
-	public TimeSeriesDataCorrectedService(
+	public TimeSeriesDataRawService(
 		AquariusRetrievalService aquariusRetrievalService
 	) {
 		this.aquariusRetrievalService = aquariusRetrievalService;
 	}
 
 	public TimeSeriesDataServiceResponse get(String primaryTimeseriesIdentifier, Instant startDate, Instant endDate) {
-		TimeSeriesDataCorrectedServiceRequest request = new TimeSeriesDataCorrectedServiceRequest()
+		TimeSeriesDataRawServiceRequest request = new TimeSeriesDataRawServiceRequest()
 				.setTimeSeriesUniqueId(primaryTimeseriesIdentifier)
 				.setQueryFrom(startDate)
-				.setIncludeGapMarkers(false)
 				.setQueryTo(endDate);
 		TimeSeriesDataServiceResponse timeSeriesResponse = aquariusRetrievalService.executePublishApiRequest(request);
 		return timeSeriesResponse;

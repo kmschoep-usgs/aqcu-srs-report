@@ -24,10 +24,11 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Grad
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Inspection;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionActivity;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionType;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.DischargeActivity;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDescription;
 
+
+import gov.usgs.aqcu.calc.sensorreadingsummary.ReadingsTimeCombiner;
 import gov.usgs.aqcu.parameter.SensorReadingSummaryRequestParameters;
 import gov.usgs.aqcu.util.AqcuTimeUtils;
 import gov.usgs.aqcu.util.TimeSeriesUtils;
@@ -45,7 +46,7 @@ public class ReportBuilderService {
 	
 	private static final String MON_METH_CREST_STAGE = "Crest stage";
 	private static final String MON_METH_MAX_MIN_INDICATOR = "Max-min indicator";
-	private static final List<String> ALLOWED_TYPES = Arrays.asList("Routine","Reset","Cleaning","After","ReferencePrimary","Reference","Unknown","BubbleGage","Other");
+	private static final List<String> ALLOWED_TYPES = Arrays.asList(new String[] {"Routine","Reset","Cleaning","After","ReferencePrimary","Reference","Unknown","BubbleGage","Other"});
 	
 	private enum EmptyCsgReadings {
 		NOMK("No mark"),
@@ -69,6 +70,7 @@ public class ReportBuilderService {
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
+	private TimeSeriesDataRawService timeSeriesDataRawService;
 	private FieldVisitDescriptionsService fieldVisitDescriptionsService;
 	private FieldVisitDataService fieldVisitDataService;
 
@@ -78,9 +80,11 @@ public class ReportBuilderService {
 		LocationDescriptionListService locationDescriptionListService,
 		TimeSeriesDescriptionListService timeSeriesDescriptionListService,
 		TimeSeriesDataCorrectedService timeSeriesDataCorrectedService,
+		TimeSeriesDataRawService timeSeriesDataRawService,
 		FieldVisitDescriptionsService  fieldVisitDescriptionsService,
 		FieldVisitDataService fieldVisitDataService) {
 		this.timeSeriesDataCorrectedService = timeSeriesDataCorrectedService;
+		this.timeSeriesDataRawService = timeSeriesDataRawService;
 		this.qualifierLookupService = qualifierLookupService;
 		this.locationDescriptionListService = locationDescriptionListService;
 		this.timeSeriesDescriptionListService = timeSeriesDescriptionListService;
@@ -90,25 +94,31 @@ public class ReportBuilderService {
 
 	public SensorReadingSummaryReport buildReport(SensorReadingSummaryRequestParameters requestParameters, String requestingUser) {
 		SensorReadingSummaryReport report = new SensorReadingSummaryReport();
-		List<Readings> srsReadings = new ArrayList<>();
+		List<Readings> readings = new ArrayList<>();
+		List<SensorReadingSummaryReading> srsReadings = new ArrayList<>();
+		ReadingsTimeCombiner readingsTimeCombiner = new ReadingsTimeCombiner();
 
 		//Primary TS Metadata
 		TimeSeriesDescription primaryDescription = timeSeriesDescriptionListService.getTimeSeriesDescription(requestParameters.getPrimaryTimeseriesIdentifier());
 		ZoneOffset primaryZoneOffset = TimeSeriesUtils.getZoneOffset(primaryDescription);
 		String primaryStationId = primaryDescription.getLocationIdentifier();
 		
+		//Time Series Corrected Data
+		
 		//Field Visits
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionsService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
 		
 		//Readings
-		
 		for (FieldVisitDescription visit: fieldVisits) {
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier(), "Inspection");
-			List<Readings> srsReading = getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES, primaryDescription.getParameter());
-			srsReadings.addAll(srsReading);
+			List<Readings> reading = getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES, primaryDescription.getParameter());
+			readings.addAll(reading);
 		}
 		
-		report.setReadings(selectedParameter(primaryDescription.getParameter(), srsReadings));
+		//report.setReadings(selectedParameter(primaryDescription.getParameter(), srsReadings));
+		readings = selectedParameter(primaryDescription.getParameter(), readings);
+
+		srsReadings = readingsTimeCombiner.combine(readings, Arrays.asList(new String[] {READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM}));
 		
 		//Report Metadata
 		report.setReportMetadata(getReportMetadata(requestParameters,
@@ -267,11 +277,6 @@ public class ReportBuilderService {
 		metadata.setTimeSeriesParams(primaryParameter);
 		metadata.setTimeseriesLabel(timeSeriesLabel);
 		metadata.setTimezone(AqcuTimeUtils.getTimezone(utcOffset));
-		// Repgen just pulls the date for the headings, so we need to be sure and get
-		// the "correct" date - its internal filtering is potentially slightly skewed
-		// by this.
-		metadata.setStartDate(requestParameters.getStartInstant(ZoneOffset.UTC));
-		metadata.setEndDate(requestParameters.getEndInstant(ZoneOffset.UTC));
 		
 		return metadata;
 	}
@@ -294,6 +299,26 @@ public class ReportBuilderService {
 			}
 		}
 		return outReadings;
+	}
+	
+	protected TimeSeriesDataServiceResponse getCorrectedData(SensorReadingSummaryRequestParameters requestParameters, ZoneOffset primaryZoneOffset) {
+		//Fetch Corrected Data
+		TimeSeriesDataServiceResponse dataResponse = timeSeriesDataCorrectedService.get(
+			requestParameters.getPrimaryTimeseriesIdentifier(), 
+			requestParameters.getStartInstant(primaryZoneOffset), 
+			requestParameters.getEndInstant(primaryZoneOffset));
+
+		return dataResponse;
+	}
+	
+	protected TimeSeriesDataServiceResponse getRawData(SensorReadingSummaryRequestParameters requestParameters, ZoneOffset primaryZoneOffset) {
+		//Fetch Corrected Data
+		TimeSeriesDataServiceResponse dataResponse = timeSeriesDataRawService.get(
+			requestParameters.getPrimaryTimeseriesIdentifier(), 
+			requestParameters.getStartInstant(primaryZoneOffset), 
+			requestParameters.getEndInstant(primaryZoneOffset));
+
+		return dataResponse;
 	}
 
 }

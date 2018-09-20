@@ -4,7 +4,7 @@ import java.util.List;
 
 public class SensorReadingSummaryReport {	
 	private SensorReadingSummaryReportMetadata reportMetadata;
-	private List<Readings> readings;
+	private List<SensorReadingSummaryReading> readings;
 	
 	public SensorReadingSummaryReportMetadata getReportMetadata() {
 		return reportMetadata;
@@ -14,11 +14,11 @@ public class SensorReadingSummaryReport {
 		reportMetadata = val;
 	}
 
-	public List<Readings> getReadings() {
+	public List<SensorReadingSummaryReading> getReadings() {
 		return readings;
 	}
 
-	public void setReadings(List<Readings> readings) {
+	public void setReadings(List<SensorReadingSummaryReading> readings) {
 		this.readings = readings;
 	}
 	

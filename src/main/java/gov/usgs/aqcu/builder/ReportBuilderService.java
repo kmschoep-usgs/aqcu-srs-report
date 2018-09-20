@@ -98,8 +98,9 @@ public class ReportBuilderService {
 			List<Readings> reading = readingsBuilderService.getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES, primaryDescription.getParameter());
 			readings.addAll(reading);
 		}
-		readings = readingsBuilderService.selectedParameter(primaryDescription.getParameter(), readings);
+		//readings = readingsBuilderService.selectedParameter(primaryDescription.getParameter(), readings);
 		srsReadings = readingsTimeCombiner.combine(readings, Arrays.asList(new String[] {READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM}));
+		report.setRawReadings(readings);
 		report.setReadings(srsReadings);
 		
 		//Report Metadata

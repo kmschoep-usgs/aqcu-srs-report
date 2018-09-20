@@ -7,9 +7,12 @@ import java.time.ZoneOffset;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import gov.usgs.aqcu.parameter.SensorReadingSummaryRequestParameters;
 
+@RunWith(SpringRunner.class)
 public class SensorReadingSummaryReportMetadataTest {
 	SensorReadingSummaryRequestParameters params = new SensorReadingSummaryRequestParameters();
 

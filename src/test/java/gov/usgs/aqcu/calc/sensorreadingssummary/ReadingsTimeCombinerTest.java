@@ -3,14 +3,11 @@ package gov.usgs.aqcu.calc.sensorreadingssummary;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 
 import gov.usgs.aqcu.calc.sensorreadingsummary.ReadingsTimeCombiner;
@@ -18,8 +15,7 @@ import gov.usgs.aqcu.model.Readings;
 import gov.usgs.aqcu.model.SensorReadingSummaryReading;
 
 public class ReadingsTimeCombinerTest {
-	//String fieldVisitIdentifier, String visitStatus, String party, String type, String sublocation, String parameter, String monitoringMethod, Temporal time, String value,
-	//String uncertainty, Temporal visitTime, List<String> comments
+
 	Readings recReading1 = new Readings("2DC362BC6BF255AEE0530100007F524B",
 			"TODO",
 			"SHB",

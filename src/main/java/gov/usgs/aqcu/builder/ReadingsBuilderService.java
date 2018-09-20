@@ -67,7 +67,7 @@ public class ReadingsBuilderService {
 			List<Inspection> inspections = activity.getInspections();
 			String visitStatus = "TODO"; //TODO see AQCU-265, this is currently being left out of the rendered report until Aquarius adds the information
 
-			Map<String,List<String>> inspectionCommentsBySerial = serialNumberToComment(inspections, allowedTypes);
+			Map<String,List<String>> inspectionCommentsBySerial = serialNumberToComment(inspections);
 
 			for(Reading read : readings){
 				List<String> comments = new ArrayList<>();
@@ -93,12 +93,17 @@ public class ReadingsBuilderService {
 						comments);
 				result.add(readingReport);
 			}
+			//Filter only readings from selected parameter
+			result = selectedParameter(parameter, result);
+			
+			//Remove readings from excluded types
+			result.removeAll(excludedTypes(result));
 			
 			//add possible "no read" inspections
-			result.addAll(extractEmptyCrestStageReadings(visit, inspections, activity));
-			result.addAll(extractEmptyMaxMinIndicatorReadings(visit, inspections, activity));
-			result.addAll(extractEmptyHighWaterMarkReadings(visit, inspections, activity));
-			result.removeAll(excludedTypes(result));
+			//result.addAll(extractEmptyCrestStageReadings(visit, inspections, activity));
+			//result.addAll(extractEmptyMaxMinIndicatorReadings(visit, inspections, activity));
+			//result.addAll(extractEmptyHighWaterMarkReadings(visit, inspections, activity));
+			
 		}			
 		
 		return result;
@@ -125,22 +130,6 @@ public class ReadingsBuilderService {
 		}
 
 		return toRet;
-	}
-	
-	private Map<String, List<String>> serialNumberToComment(List<Inspection> inspections, List<String> allowedTypes){
-		if(allowedTypes.isEmpty()){
-			return serialNumberToComment(inspections);
-		} 
-		else {
-			List<Inspection> filteredInspections = new ArrayList<>();
-			//Considering making this a function to abstract it away. Currently kind of ugly.
-			for(Inspection inspection : inspections){
-				if(allowedTypes.contains(inspection.getInspectionType().toString())){
-					filteredInspections.add(inspection);
-				}
-			}
-			return serialNumberToComment(filteredInspections);
-		}
 	}
 	
 	private List<Readings> excludedTypes(List<Readings> inReadings){

@@ -43,7 +43,7 @@ public class ReportBuilderService {
 	private static final String READING_TYPE_REF_PRIM = "ReferencePrimary";
 	private static final String ALT_READING_TYPE_REF_PRIM = "REFERENCE_PRIMARY";
 	private static final String INSPECTION_ACTIVITY = "Inspection";
-	private static final List<String> ALLOWED_TYPES = Arrays.asList(new String[] {"Routine","Reset","Cleaning","After","ReferencePrimary","Reference","Unknown","BubbleGage","Other"});
+	private static final List<String> ALLOWED_TYPES = Arrays.asList(new String[] {"Routine","Reset","Cleaning","After","ReferencePrimary","Reference","Unknown"});
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
 
@@ -95,7 +95,7 @@ public class ReportBuilderService {
 		//Readings
 		for (FieldVisitDescription visit: fieldVisits) {
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier(), INSPECTION_ACTIVITY);
-			List<Readings> reading = readingsBuilderService.getAqcuFieldVisitsReadings(visit, fieldVisitData, ALLOWED_TYPES, primaryDescription.getParameter());
+			List<Readings> reading = readingsBuilderService.getAqcuFieldVisitsReadings(visit, fieldVisitData, primaryDescription.getParameter());
 			readings.addAll(reading);
 		}
 		//readings = readingsBuilderService.selectedParameter(primaryDescription.getParameter(), readings);

@@ -19,9 +19,10 @@ public class FieldVisitDataServiceTest {
 
 	@MockBean
 	private AquariusRetrievalService aquariusService;
-
 	private FieldVisitDataService service;
+	
 	private FieldVisitDataServiceResponse expected = new FieldVisitDataServiceResponse();
+	
 
 	@Before
 	@SuppressWarnings("unchecked")

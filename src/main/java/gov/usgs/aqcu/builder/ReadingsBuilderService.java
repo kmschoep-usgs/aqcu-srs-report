@@ -30,24 +30,6 @@ public class ReadingsBuilderService {
 	private static final Logger LOG = LoggerFactory.getLogger(ReadingsBuilderService.class);
 	
 	private static final String EXCLUDED_READING_TYPES = "ExtremeMax,ExtremeMin";
-	private static final String MON_METH_CREST_STAGE = "Crest stage";
-	private static final String MON_METH_MAX_MIN_INDICATOR = "Max-min indicator";
-	
-	private enum EmptyCsgReadings {
-		NOMK("No mark"),
-		NTRD("Not read"),
-		OTOP("Over topped");
-		
-		private String readingDisplay;
-		
-		EmptyCsgReadings(String readingDisplay) {
-			this.readingDisplay = readingDisplay;
-		}
-		
-		public String getDisplay() {
-			return readingDisplay;
-		}
-	}
 
 	/**
 	 * Returns a list of all readings from a field visit.
@@ -57,7 +39,7 @@ public class ReadingsBuilderService {
 	 * @param allowedTypes The allowed types of readings to collect
 	 * @return The list of extracted readings
 	 */
-	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, List<String> allowedTypes, String parameter){
+	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, String parameter){
 		List<Readings> result = new ArrayList<>();
 
 		InspectionActivity activity = fieldVisitResponse.getInspectionActivity();
@@ -87,9 +69,17 @@ public class ReadingsBuilderService {
 				Temporal fieldVisitTemporal = visit.getStartTime();
 				Temporal readingTime = read.getTime(); 
 				
-				Readings readingReport = new Readings(visit.getIdentifier(), visitStatus, activity.getParty(), 
-						read.getReadingType().toString(), read.getSubLocationIdentifier(), read.getParameter(), read.getMonitoringMethod(),
-						readingTime, read.getValue().getDisplay(), read.getUncertainty().getDisplay(), fieldVisitTemporal, 
+				Readings readingReport = new Readings(visit.getIdentifier(), 
+						visitStatus, 
+						activity.getParty(), 
+						read.getReadingType().toString(), 
+						read.getSubLocationIdentifier(), 
+						read.getParameter(), 
+						read.getMonitoringMethod(),
+						readingTime, 
+						read.getValue().getDisplay(), 
+						read.getUncertainty().getDisplay(), 
+						fieldVisitTemporal, 
 						comments);
 				result.add(readingReport);
 			}
@@ -152,43 +142,4 @@ public class ReadingsBuilderService {
 		return outReadings;
 	}
 	
-	private List<Readings> extractEmptyCrestStageReadings(FieldVisitDescription visit, List<Inspection> inspections, InspectionActivity activity) {
-		List<Readings> readings = new ArrayList<>();
-		for(Inspection ins : inspections) {
-			if (ins.getInspectionType().equals(InspectionType.CrestStageGage)) {
-				for(EmptyCsgReadings csg: EmptyCsgReadings.values()) {
-					if(ins.getComments().contains(csg.name()) || ins.getComments().contains(csg.readingDisplay)) {
-						readings.add(new Readings(visit.getIdentifier(), "TODO", activity.getParty(), 
-								ReadingType.ExtremeMax.toString(), ins.getSubLocationIdentifier(), null, MON_METH_CREST_STAGE,
-								null, csg.getDisplay(), 
-								null, visit.getStartTime(), Arrays.asList(new String [] { ins.getComments() }))
-								);						
-					}
-				}
-			}
-		}
-		return readings;
-	}
-	
-	private List<Readings> extractEmptyMaxMinIndicatorReadings(FieldVisitDescription visit, List<Inspection> inspections, InspectionActivity activity) {
-		List<Readings> readings = new ArrayList<>();
-		for(Inspection ins : inspections) {
-			if (ins.getInspectionType().equals(InspectionType.MaximumMinimumGage)) {
-				if(StringUtils.isNotBlank(ins.getComments())){	
-					readings.add(new Readings(visit.getIdentifier(), "TODO", activity.getParty(), 
-							ReadingType.ExtremeMax.toString(), ins.getSubLocationIdentifier(), null, MON_METH_MAX_MIN_INDICATOR,
-							null, "", 
-							null, visit.getStartTime(), Arrays.asList(new String[] { ins.getComments() }))
-							);
-				}
-			} 
-		}
-		return readings;
-	}
-	
-	private List<Readings> extractEmptyHighWaterMarkReadings(FieldVisitDescription visit, List<Inspection> inspections, InspectionActivity activity) {
-		List<Readings> readings = new ArrayList<>();
-		//TODO when Aquarius adds HWM method
-		return readings;
-	}
 }

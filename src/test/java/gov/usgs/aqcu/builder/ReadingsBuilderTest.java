@@ -128,6 +128,7 @@ public class ReadingsBuilderTest {
 
 		assertEquals(3, reading.size());
 		assertEquals("Precipitation", reading.get(0).getParameter());
+		assertEquals("TEST PARTY", reading.get(0).getParty());
 		assertEquals(Instant.parse("2017-01-01T10:06:00Z"), reading.get(0).getTime());
 		assertEquals(Arrays.asList("INSPECTION COMMENT","TEST READING COMMENT TWO"), reading.get(0).getComments());
 		assertEquals("a", reading.get(0).getFieldVisitIdentifier());
@@ -135,6 +136,7 @@ public class ReadingsBuilderTest {
 		assertEquals(ReadingType.Routine.toString(), reading.get(0).getType());
 		
 		assertEquals("Precipitation", reading.get(1).getParameter());
+		assertEquals("TEST PARTY", reading.get(1).getParty());
 		assertEquals(Instant.parse("2017-01-01T10:06:00Z"), reading.get(1).getTime());
 		assertEquals(Arrays.asList("TEST READING COMMENT THREE"), reading.get(1).getComments());
 		assertEquals("a", reading.get(1).getFieldVisitIdentifier());
@@ -142,6 +144,7 @@ public class ReadingsBuilderTest {
 		assertEquals(ReadingType.Routine.toString(), reading.get(1).getType());
 		
 		assertEquals("Precipitation", reading.get(2).getParameter());
+		assertEquals("TEST PARTY", reading.get(2).getParty());
 		assertEquals(Instant.parse("2017-01-01T10:07:00Z"), reading.get(2).getTime());
 		assertEquals(Arrays.asList("INSPECTION COMMENT"), reading.get(2).getComments());
 		assertEquals("a", reading.get(2).getFieldVisitIdentifier());

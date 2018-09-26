@@ -2,6 +2,7 @@ package gov.usgs.aqcu.builder;
 
 import java.util.Map;
 import java.util.List;
+import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,8 +67,8 @@ public class ReadingsBuilderService {
 					comments.add(readingComments);
 				}
 				
-				Temporal fieldVisitTemporal = visit.getStartTime();
-				Temporal readingTime = read.getTime(); 
+				Instant fieldVisitTemporal = visit.getStartTime();
+				Instant readingTime = read.getTime(); 
 				
 				Readings readingReport = new Readings(visit.getIdentifier(), 
 						visitStatus, 

@@ -6,9 +6,12 @@
 package gov.usgs.aqcu.model;
 
 import java.util.List;
+import java.util.Map;
 
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Qualifier;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.QualifierMetadata;
 
+import java.time.Instant;
 import java.time.temporal.Temporal;
 
 /** 
@@ -17,7 +20,7 @@ import java.time.temporal.Temporal;
  * @author kmschoep
  */
 public class SensorReadingSummaryReading {
-	private Temporal displayTime;
+	private Instant displayTime;
 	private List<String> recorderComments;
 	private String visitStatus;
 	private String recorderMethod;
@@ -25,7 +28,7 @@ public class SensorReadingSummaryReading {
 	private String recorderType;
 	private String recorderUncertainty;
 	private Temporal nearestCorrectedTime;
-	private List<QualifierMetadata> qualifiers;
+	private List<Qualifier> qualifiers;
 	private String nearestCorrectedValue;
 	private Temporal nearestRawTime;
 	private String nearestRawValue;
@@ -39,7 +42,7 @@ public class SensorReadingSummaryReading {
 	private String monitoringMethod;
 	
 	
-	public Temporal getDisplayTime() {
+	public Instant getDisplayTime() {
 		return displayTime;
 	}
 	public List<String> getRecorderComments() {
@@ -60,7 +63,7 @@ public class SensorReadingSummaryReading {
 	public Temporal getNearestCorrectedTime() {
 		return nearestCorrectedTime;
 	}
-	public List<QualifierMetadata> getQualifiers() {
+	public List<Qualifier> getQualifiers() {
 		return qualifiers;
 	}
 	public String getNearestCorrectedValue() {
@@ -96,7 +99,7 @@ public class SensorReadingSummaryReading {
 	public String getMonitoringMethod() {
 		return monitoringMethod;
 	}
-	public void setDisplayTime(Temporal displayTime) {
+	public void setDisplayTime(Instant displayTime) {
 		this.displayTime = displayTime;
 	}
 	public void setRecorderComments(List<String> recorderComments) {
@@ -117,7 +120,7 @@ public class SensorReadingSummaryReading {
 	public void setNearestCorrectedTime(Temporal nearestCorrectedTime) {
 		this.nearestCorrectedTime = nearestCorrectedTime;
 	}
-	public void setQualifiers(List<QualifierMetadata> qualifiers) {
+	public void setQualifiers(List<Qualifier> qualifiers) {
 		this.qualifiers = qualifiers;
 	}
 	public void setNearestCorrectedValue(String nearestCorrectedValue) {

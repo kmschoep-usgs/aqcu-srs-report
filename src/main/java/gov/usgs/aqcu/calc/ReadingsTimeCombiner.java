@@ -1,6 +1,6 @@
 /*
  */
-package gov.usgs.aqcu.calc.sensorreadingsummary;
+package gov.usgs.aqcu.calc;
 
 import java.util.ArrayList;
 import java.util.HashMap;

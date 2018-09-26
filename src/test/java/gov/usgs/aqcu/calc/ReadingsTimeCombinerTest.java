@@ -1,4 +1,4 @@
-package gov.usgs.aqcu.calc.sensorreadingssummary;
+package gov.usgs.aqcu.calc;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import gov.usgs.aqcu.calc.sensorreadingsummary.ReadingsTimeCombiner;
+import gov.usgs.aqcu.calc.ReadingsTimeCombiner;
 import gov.usgs.aqcu.model.Readings;
 import gov.usgs.aqcu.model.SensorReadingSummaryReading;
 

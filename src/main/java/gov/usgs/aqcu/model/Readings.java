@@ -6,7 +6,7 @@
 package gov.usgs.aqcu.model;
 
 import java.util.List;
-
+import java.time.Instant;
 import java.time.temporal.Temporal;
 
 /** 
@@ -17,8 +17,8 @@ import java.time.temporal.Temporal;
 public class Readings {
 	private final String fieldVisitIdentifier;
 	private final String visitStatus;
-	private final Temporal time;
-	private final Temporal visitTime;
+	private final Instant time;
+	private final Instant visitTime;
 	private final String party;
 	private final String monitoringMethod;
 	private final String value;
@@ -28,8 +28,8 @@ public class Readings {
 	private final String type;
 	private final String sublocation;
 
-	public Readings(String fieldVisitIdentifier, String visitStatus, String party, String type, String sublocation, String parameter, String monitoringMethod, Temporal time, String value,
-			String uncertainty, Temporal visitTime, List<String> comments){
+	public Readings(String fieldVisitIdentifier, String visitStatus, String party, String type, String sublocation, String parameter, String monitoringMethod, Instant time, String value,
+			String uncertainty, Instant visitTime, List<String> comments){
 		this.fieldVisitIdentifier = fieldVisitIdentifier;
 		this.visitStatus = visitStatus;
 		this.party = party;
@@ -48,7 +48,7 @@ public class Readings {
 	 *
 	 * @return The visit time
 	 */
-	public Temporal getVisitTime() {
+	public Instant getVisitTime() {
 		return visitTime;
 	}
 
@@ -64,7 +64,7 @@ public class Readings {
 	 *
 	 * @return The time the readings were collected
 	 */
-	public Temporal getTime() {
+	public Instant getTime() {
 		return time;
 	}
 

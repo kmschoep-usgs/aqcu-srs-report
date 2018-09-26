@@ -27,11 +27,11 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Insp
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDescription;
 
-
-import gov.usgs.aqcu.calc.sensorreadingsummary.ReadingsTimeCombiner;
 import gov.usgs.aqcu.parameter.SensorReadingSummaryRequestParameters;
 import gov.usgs.aqcu.util.AqcuTimeUtils;
 import gov.usgs.aqcu.util.TimeSeriesUtils;
+import gov.usgs.aqcu.calc.NearestTimePointCalculator;
+import gov.usgs.aqcu.calc.ReadingsTimeCombiner;
 import gov.usgs.aqcu.model.*;
 import gov.usgs.aqcu.retrieval.*;
 
@@ -47,7 +47,6 @@ public class ReportBuilderService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
 
-	private QualifierLookupService qualifierLookupService;
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
@@ -55,25 +54,26 @@ public class ReportBuilderService {
 	private FieldVisitDescriptionsService fieldVisitDescriptionsService;
 	private FieldVisitDataService fieldVisitDataService;
 	private ReadingsBuilderService readingsBuilderService;
+	private QualifierLookupService qualifierLookupService;
 
 	@Autowired
 	public ReportBuilderService(
-		QualifierLookupService qualifierLookupService,
 		LocationDescriptionListService locationDescriptionListService,
 		TimeSeriesDescriptionListService timeSeriesDescriptionListService,
 		TimeSeriesDataCorrectedService timeSeriesDataCorrectedService,
 		TimeSeriesDataRawService timeSeriesDataRawService,
 		FieldVisitDescriptionsService  fieldVisitDescriptionsService,
 		FieldVisitDataService fieldVisitDataService,
-		ReadingsBuilderService readingsBuilderService) {
+		ReadingsBuilderService readingsBuilderService,
+		QualifierLookupService qualifierLookupService) {
 		this.timeSeriesDataCorrectedService = timeSeriesDataCorrectedService;
 		this.timeSeriesDataRawService = timeSeriesDataRawService;
-		this.qualifierLookupService = qualifierLookupService;
 		this.locationDescriptionListService = locationDescriptionListService;
 		this.timeSeriesDescriptionListService = timeSeriesDescriptionListService;
 		this.fieldVisitDescriptionsService = fieldVisitDescriptionsService;
 		this.fieldVisitDataService = fieldVisitDataService;
 		this.readingsBuilderService = readingsBuilderService;
+		this.qualifierLookupService = qualifierLookupService;
 	}
 
 	public SensorReadingSummaryReport buildReport(SensorReadingSummaryRequestParameters requestParameters, String requestingUser) {
@@ -81,6 +81,7 @@ public class ReportBuilderService {
 		List<Readings> readings = new ArrayList<>();
 		List<SensorReadingSummaryReading> srsReadings = new ArrayList<>();
 		ReadingsTimeCombiner readingsTimeCombiner = new ReadingsTimeCombiner();
+		NearestTimePointCalculator nearestTimePointCalculator = new NearestTimePointCalculator();
 
 		//Primary TS Metadata
 		TimeSeriesDescription primaryDescription = timeSeriesDescriptionListService.getTimeSeriesDescription(requestParameters.getPrimaryTimeseriesIdentifier());
@@ -88,6 +89,7 @@ public class ReportBuilderService {
 		String primaryStationId = primaryDescription.getLocationIdentifier();
 		
 		//Time Series Corrected Data
+		TimeSeriesDataServiceResponse timeSeriesCorrectedData = getCorrectedData(requestParameters, primaryZoneOffset);
 		
 		//Field Visits
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionsService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
@@ -99,6 +101,7 @@ public class ReportBuilderService {
 			readings.addAll(reading);
 		}
 		srsReadings = readingsTimeCombiner.combine(readings, Arrays.asList(new String[] {READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM}));
+		srsReadings = nearestTimePointCalculator.findNearest(srsReadings, timeSeriesCorrectedData, true);
 		report.setReadings(srsReadings);
 		
 		//Report Metadata
@@ -131,12 +134,12 @@ public class ReportBuilderService {
 	}
 	
 	
-	protected TimeSeriesDataServiceResponse getCorrectedData(SensorReadingSummaryRequestParameters requestParameters, ZoneOffset primaryZoneOffset) {
+	protected TimeSeriesDataServiceResponse getCorrectedData(SensorReadingSummaryRequestParameters requestParams, ZoneOffset zoneOffset) {
 		//Fetch Corrected Data
 		TimeSeriesDataServiceResponse dataResponse = timeSeriesDataCorrectedService.get(
-			requestParameters.getPrimaryTimeseriesIdentifier(), 
-			requestParameters.getStartInstant(primaryZoneOffset), 
-			requestParameters.getEndInstant(primaryZoneOffset));
+			requestParams.getPrimaryTimeseriesIdentifier(), 
+			requestParams.getStartInstant(zoneOffset), 
+			requestParams.getEndInstant(zoneOffset));
 
 		return dataResponse;
 	}

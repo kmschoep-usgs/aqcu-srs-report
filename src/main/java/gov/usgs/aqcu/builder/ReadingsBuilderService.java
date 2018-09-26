@@ -3,9 +3,7 @@ package gov.usgs.aqcu.builder;
 import java.util.Map;
 import java.util.List;
 import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,13 +16,9 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Fiel
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Inspection;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionActivity;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionType;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Reading;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ReadingType;
 
 import gov.usgs.aqcu.model.Readings;
-import gov.usgs.aqcu.parameter.ReportRequestParameters;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class ReadingsBuilderService {
@@ -32,72 +26,64 @@ public class ReadingsBuilderService {
 	
 	private static final String EXCLUDED_READING_TYPES = "ExtremeMax,ExtremeMin";
 
-	/**
-	 * Returns a list of all readings from a field visit.
-	 * 
-	 * @param visit The field visit to get readings from
-	 * @param fieldVisitResponse The Aquarius FieldVisit service response
-	 * @param allowedTypes The allowed types of readings to collect
-	 * @return The list of extracted readings
-	 */
 	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, String parameter){
-		List<Readings> result = new ArrayList<>();
-
-		InspectionActivity activity = fieldVisitResponse.getInspectionActivity();
-		
-		if(activity != null){
-			List<Reading> readings = activity.getReadings();
-			List<Inspection> inspections = activity.getInspections();
-			String visitStatus = "TODO"; //TODO see AQCU-265, this is currently being left out of the rendered report until Aquarius adds the information
-
-			Map<String,List<String>> inspectionCommentsBySerial = serialNumberToComment(inspections);
-
-			for(Reading read : readings){
-				List<String> comments = new ArrayList<>();
-				
-				//comments attached to the inspection activity, linked by the reading's serial number 
-				List<String> inspectionComments = inspectionCommentsBySerial.get(read.getSerialNumber());
-				if(inspectionComments != null) {
-					comments.addAll(inspectionComments);
+		try {
+			List<Readings> result = new ArrayList<>();
+	
+			InspectionActivity activity = fieldVisitResponse.getInspectionActivity();
+			
+			if(activity != null){
+				List<Reading> readings = activity.getReadings();
+				List<Inspection> inspections = activity.getInspections();
+				String visitStatus = "TODO"; //TODO see AQCU-265, this is currently being left out of the rendered report until Aquarius adds the information
+	
+				Map<String,List<String>> inspectionCommentsBySerial = serialNumberToComment(inspections);
+	
+				for(Reading read : readings){
+					List<String> comments = new ArrayList<>();
+					
+					//comments attached to the inspection activity, linked by the reading's serial number 
+					List<String> inspectionComments = inspectionCommentsBySerial.get(read.getSerialNumber());
+					if(inspectionComments != null) {
+						comments.addAll(inspectionComments);
+					}
+					
+					//comments already attached to the reading;
+					String readingComments = read.getComments();
+					if(readingComments != null){
+						comments.add(readingComments);
+					}
+					
+					Instant fieldVisitTemporal = visit.getStartTime();
+					Instant readingTime = read.getTime(); 
+					
+					Readings readingReport = new Readings(visit.getIdentifier(), 
+							visitStatus, 
+							activity.getParty(), 
+							read.getReadingType().toString(), 
+							read.getSubLocationIdentifier(), 
+							read.getParameter(), 
+							read.getMonitoringMethod(),
+							readingTime, 
+							read.getValue().getDisplay(), 
+							read.getUncertainty().getDisplay(), 
+							fieldVisitTemporal, 
+							comments);
+					result.add(readingReport);
 				}
+				//Filter only readings from selected parameter
+				result = selectedParameter(parameter, result);
 				
-				//comments already attached to the reading;
-				String readingComments = read.getComments();
-				if(readingComments != null){
-					comments.add(readingComments);
-				}
-				
-				Instant fieldVisitTemporal = visit.getStartTime();
-				Instant readingTime = read.getTime(); 
-				
-				Readings readingReport = new Readings(visit.getIdentifier(), 
-						visitStatus, 
-						activity.getParty(), 
-						read.getReadingType().toString(), 
-						read.getSubLocationIdentifier(), 
-						read.getParameter(), 
-						read.getMonitoringMethod(),
-						readingTime, 
-						read.getValue().getDisplay(), 
-						read.getUncertainty().getDisplay(), 
-						fieldVisitTemporal, 
-						comments);
-				result.add(readingReport);
-			}
-			//Filter only readings from selected parameter
-			result = selectedParameter(parameter, result);
+				//Remove readings from excluded types
+				result.removeAll(excludedTypes(result));			
+			}			
 			
-			//Remove readings from excluded types
-			result.removeAll(excludedTypes(result));
-			
-			//add possible "no read" inspections
-			//result.addAll(extractEmptyCrestStageReadings(visit, inspections, activity));
-			//result.addAll(extractEmptyMaxMinIndicatorReadings(visit, inspections, activity));
-			//result.addAll(extractEmptyHighWaterMarkReadings(visit, inspections, activity));
-			
-		}			
-		
-		return result;
+			return result;
+		} catch (Exception e) {
+			String msg = "An unexpected error occurred while attempting to build readings: ";
+			LOG.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
 	}
 	/**
 	 * Returns comments stored in inspections linked by serial number. These comments are known as 

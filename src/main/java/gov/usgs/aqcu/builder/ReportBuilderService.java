@@ -2,13 +2,9 @@ package gov.usgs.aqcu.builder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.time.ZoneOffset;
-import java.time.temporal.Temporal;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Qualifier;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Reading;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ReadingType;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Grade;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Inspection;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionActivity;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.InspectionType;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDescription;
 
@@ -43,7 +33,6 @@ public class ReportBuilderService {
 	private static final String READING_TYPE_REF_PRIM = "ReferencePrimary";
 	private static final String ALT_READING_TYPE_REF_PRIM = "REFERENCE_PRIMARY";
 	private static final String INSPECTION_ACTIVITY = "Inspection";
-	private static final List<String> ALLOWED_TYPES = Arrays.asList(new String[] {"Routine","Reset","Cleaning","After","ReferencePrimary","Reference","Unknown"});
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
 
@@ -91,6 +80,9 @@ public class ReportBuilderService {
 		//Time Series Corrected Data
 		TimeSeriesDataServiceResponse timeSeriesCorrectedData = getCorrectedData(requestParameters, primaryZoneOffset);
 		
+		//Time Series Raw Data
+		TimeSeriesDataServiceResponse timeSeriesRawData = getRawData(requestParameters, primaryZoneOffset);
+		
 		//Field Visits
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionsService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
 		
@@ -102,6 +94,8 @@ public class ReportBuilderService {
 		}
 		srsReadings = readingsTimeCombiner.combine(readings, Arrays.asList(new String[] {READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM}));
 		srsReadings = nearestTimePointCalculator.findNearest(srsReadings, timeSeriesCorrectedData, true);
+		srsReadings = nearestTimePointCalculator.findNearest(srsReadings, timeSeriesRawData, false);
+		
 		report.setReadings(srsReadings);
 		
 		//Report Metadata
@@ -110,16 +104,14 @@ public class ReportBuilderService {
 			primaryDescription.getLocationIdentifier(), 
 			primaryDescription.getIdentifier(),
 			primaryDescription.getUtcOffset(),
-			primaryDescription.getIdentifier()
+			primaryDescription.getIdentifier(),
+			getReadingQualifiers(srsReadings)
 		));
 
 		return report;
 	}
-	
-	
-	
 
-	protected SensorReadingSummaryReportMetadata getReportMetadata(SensorReadingSummaryRequestParameters requestParameters, String requestingUser, String stationId, String primaryParameter, Double utcOffset, String timeSeriesLabel) {
+	protected SensorReadingSummaryReportMetadata getReportMetadata(SensorReadingSummaryRequestParameters requestParameters, String requestingUser, String stationId, String primaryParameter, Double utcOffset, String timeSeriesLabel, List<Qualifier> qualifierList) {
 		SensorReadingSummaryReportMetadata metadata = new SensorReadingSummaryReportMetadata();
 		metadata.setTitle(REPORT_TITLE);
 		metadata.setRequestingUser(requestingUser);
@@ -130,9 +122,12 @@ public class ReportBuilderService {
 		metadata.setTimeseriesLabel(timeSeriesLabel);
 		metadata.setTimezone(AqcuTimeUtils.getTimezone(utcOffset));
 		
+		if(qualifierList != null && !qualifierList.isEmpty()) {
+			metadata.setQualifierMetadata(qualifierLookupService.getByQualifierList(qualifierList));
+		}
+		
 		return metadata;
 	}
-	
 	
 	protected TimeSeriesDataServiceResponse getCorrectedData(SensorReadingSummaryRequestParameters requestParams, ZoneOffset zoneOffset) {
 		//Fetch Corrected Data
@@ -153,5 +148,13 @@ public class ReportBuilderService {
 
 		return dataResponse;
 	}
-
+	
+	protected List<Qualifier> getReadingQualifiers (List<SensorReadingSummaryReading> inReadings){
+		List<Qualifier> qualList = new ArrayList<>();
+		
+		for (SensorReadingSummaryReading srs: inReadings) {
+			qualList.addAll(srs.getQualifiers());
+		}
+		return qualList;
+	}
 }

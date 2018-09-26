@@ -24,11 +24,17 @@ public class TimeSeriesDataRawService {
 	}
 
 	public TimeSeriesDataServiceResponse get(String primaryTimeseriesIdentifier, Instant startDate, Instant endDate) {
-		TimeSeriesDataRawServiceRequest request = new TimeSeriesDataRawServiceRequest()
-				.setTimeSeriesUniqueId(primaryTimeseriesIdentifier)
-				.setQueryFrom(startDate)
-				.setQueryTo(endDate);
-		TimeSeriesDataServiceResponse timeSeriesResponse = aquariusRetrievalService.executePublishApiRequest(request);
-		return timeSeriesResponse;
+		try {
+			TimeSeriesDataRawServiceRequest request = new TimeSeriesDataRawServiceRequest()
+					.setTimeSeriesUniqueId(primaryTimeseriesIdentifier)
+					.setQueryFrom(startDate)
+					.setQueryTo(endDate);
+			TimeSeriesDataServiceResponse timeSeriesResponse = aquariusRetrievalService.executePublishApiRequest(request);
+			return timeSeriesResponse;
+		} catch (Exception e) {
+			String msg = "An unexpected error occurred while attempting to fetch TimeSeriesDataRawServiceRequest from Aquarius: ";
+			LOG.error(msg, e);
+			throw new RuntimeException(msg, e);
+		}
 	}
 }

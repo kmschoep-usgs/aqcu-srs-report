@@ -70,28 +70,27 @@ public class NearestTimePointCalculator {
 			}
 			if (isCorrected) {
 				setNearestCorrected(timeSeriesPoints, pointToLookFor, index);
-			} else {
-				setNearestRaw(timeSeriesPoints, pointToLookFor, index);
-			}
-		
-			//The qualifiers to add to the current reading
-			List<Qualifier> tsQualifiers = timeSeries.getQualifiers();
-			
-			if (tsQualifiers != null) {
-				List<Qualifier> qualifiers = new ArrayList<>();
 				
-				//Go through quals and check if time is within the range.
-				for(Qualifier qual : tsQualifiers){
-					if(c.compare(pointToLookFor.getDisplayTime(), qual.getStartTime()) >= 0 && !(qualifiers.contains(qual))){
-						if(c.compare(pointToLookFor.getDisplayTime(), qual.getEndTime()) <= 0){
-							qualifiers.add(qual);
+				//The qualifiers to add to the current reading
+				List<Qualifier> tsQualifiers = timeSeries.getQualifiers();
+				
+				if (tsQualifiers.size() != 0) {
+					List<Qualifier> qualifiers = new ArrayList<>();
+					
+					//Go through quals and check if time is within the range.
+					for(Qualifier qual : tsQualifiers){
+						if(c.compare(pointToLookFor.getDisplayTime(), qual.getStartTime()) >= 0 && !(qualifiers.contains(qual))){
+							if(c.compare(pointToLookFor.getDisplayTime(), qual.getEndTime()) <= 0){
+								qualifiers.add(qual);
+							}
 						}
 					}
+					pointToLookFor.setQualifiers(qualifiers);
+				} else {
+					pointToLookFor.setQualifiers(tsQualifiers);
 				}
-				pointToLookFor.setQualifiers(qualifiers);
-				
 			} else {
-				pointToLookFor.setQualifiers(null);
+				setNearestRaw(timeSeriesPoints, pointToLookFor, index);
 			}
 		}
 		return readings;

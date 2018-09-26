@@ -7,12 +7,11 @@ package gov.usgs.aqcu.model;
 
 import java.util.List;
 import java.time.Instant;
-import java.time.temporal.Temporal;
 
 /** 
  * Summarized AQCU version of a readings report.
  *
- * @author dpattermann
+ * @author kmschoep
  */
 public class Readings {
 	private final String fieldVisitIdentifier;

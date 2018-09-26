@@ -26,9 +26,8 @@ public class ReadingsTimeCombiner {
 		
 		//first separate readings into reference readings or recorder readings
 		for(Readings row : readings) {
-			// "type", "time", "visitTime"
+			
 			//Display time
-			//String rowKey = (String) (row.get(keyField) != null? row.get(keyField):row.get(backupField));
 			String rowKey = (String) (row.getTime().toString() != null? row.getTime().toString():row.getVisitTime().toString());
 			
 			//Look in map matcher for entry.
@@ -90,7 +89,6 @@ public class ReadingsTimeCombiner {
 		}
 
 		toRet.sort((SensorReadingSummaryReading r1, SensorReadingSummaryReading r2)->r1.getDisplayTime().toString().compareTo(r2.getDisplayTime().toString()));
-		//Collections.sort(toRet, new JsonMapComparator(TimeCombinerEnum.DISPLAYTIME.toString()));
 		return  toRet;
 	}
 	
@@ -140,5 +138,4 @@ public class ReadingsTimeCombiner {
 		tableEntry.setUncertainty(incomingData.getUncertainty());
 		tableEntry.setReferenceComments(incomingData.getReferenceComments());
 	}
-
 }

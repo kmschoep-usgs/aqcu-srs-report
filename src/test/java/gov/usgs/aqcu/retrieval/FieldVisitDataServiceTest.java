@@ -19,9 +19,10 @@ public class FieldVisitDataServiceTest {
 
 	@MockBean
 	private AquariusRetrievalService aquariusService;
-
 	private FieldVisitDataService service;
+	
 	private FieldVisitDataServiceResponse expected = new FieldVisitDataServiceResponse();
+	
 
 	@Before
 	@SuppressWarnings("unchecked")
@@ -32,7 +33,7 @@ public class FieldVisitDataServiceTest {
 
 	@Test
 	public void get_happyTest() {
-		FieldVisitDataServiceResponse actual = service.get("a");
+		FieldVisitDataServiceResponse actual = service.get("a", "b");
 		assertEquals(expected, actual);
 	}
 

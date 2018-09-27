@@ -26,12 +26,12 @@ import gov.usgs.aqcu.parameter.SensorReadingSummaryRequestParameters;
 import net.servicestack.client.IReturn;
 
 @RunWith(SpringRunner.class)
-public class FieldVisitDescriptionServiceTest {
+public class FieldVisitDescriptionsServiceTest {
 
 	@MockBean
 	private AquariusRetrievalService aquariusService;
 
-	private FieldVisitDescriptionService service;
+	private FieldVisitDescriptionsService service;
 	private SensorReadingSummaryRequestParameters parameters;
 	private Instant now = Instant.now();
 	public static final LocalDate REPORT_END_DATE = LocalDate.of(2018, 03, 17);
@@ -53,7 +53,7 @@ public class FieldVisitDescriptionServiceTest {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setup() throws Exception {
-		service = new FieldVisitDescriptionService(aquariusService);
+		service = new FieldVisitDescriptionsService(aquariusService);
 		parameters = new SensorReadingSummaryRequestParameters();
 		given(aquariusService.executePublishApiRequest(any(IReturn.class))).willReturn(new FieldVisitDescriptionListServiceResponse()
 				.setFieldVisitDescriptions(new ArrayList<FieldVisitDescription>(Arrays.asList(descriptionA, descriptionB, descriptionC))));

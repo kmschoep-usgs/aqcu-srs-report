@@ -17,13 +17,13 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Fiel
 import gov.usgs.aqcu.parameter.SensorReadingSummaryRequestParameters;
 
 @Repository
-public class FieldVisitDescriptionService {
-	private static final Logger LOG = LoggerFactory.getLogger(FieldVisitDescriptionService.class);
+public class FieldVisitDescriptionsService {
+	private static final Logger LOG = LoggerFactory.getLogger(FieldVisitDescriptionsService.class);
 
 	private AquariusRetrievalService aquariusRetrievalService;
 
 	@Autowired
-	public FieldVisitDescriptionService(AquariusRetrievalService aquariusRetrievalService) {
+	public FieldVisitDescriptionsService(AquariusRetrievalService aquariusRetrievalService) {
 		this.aquariusRetrievalService = aquariusRetrievalService;
 	}
 

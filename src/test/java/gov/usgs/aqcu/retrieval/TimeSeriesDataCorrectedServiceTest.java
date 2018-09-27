@@ -102,7 +102,7 @@ public class TimeSeriesDataCorrectedServiceTest {
 
 	@Test
 	public void getRawResponseTest() {
-		TimeSeriesDataServiceResponse result = service.getRawResponse("tsid", Instant.parse("2017-01-01T00:00:00Z"), Instant.parse("2017-03-01T00:00:00Z"));
+		TimeSeriesDataServiceResponse result = service.get("tsid", Instant.parse("2017-01-01T00:00:00Z"), Instant.parse("2017-03-01T00:00:00Z"));
 		assertEquals(result, TS_DATA_RESPONSE);
 	}
 }

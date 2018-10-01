@@ -2,17 +2,13 @@ package gov.usgs.aqcu.parameter;
 
 public class SensorReadingSummaryRequestParameters extends ReportRequestParameters {
 
-	private String excludeComments;
+	private boolean excludeComments;
 
-	public SensorReadingSummaryRequestParameters() {
-		excludeComments = new String();
-	}
-
-	public String getExcludeComments() {		
+	public boolean getExcludeComments() {		
 		return excludeComments;
 	}
 
-	public void setExcludedCorrections(String val) {
+	public void setExcludedCorrections(boolean val) {
 		this.excludeComments = val;
 	}
 

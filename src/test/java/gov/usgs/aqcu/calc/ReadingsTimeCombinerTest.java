@@ -114,7 +114,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResults = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecorders, 
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(2, combinedResults.size());
 		assertEquals(Instant.parse("2013-10-28T09:53:00Z"), combinedResults.get(0).getDisplayTime());
@@ -152,7 +152,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResults = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecorders, 
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(2, combinedResults.size());
 		assertEquals(Instant.parse("2013-10-28T09:53:00Z"), combinedResults.get(0).getDisplayTime());
@@ -192,7 +192,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResults = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecorders,  
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(2, combinedResults.size());
 		assertEquals(Instant.parse("2013-10-28T09:53:00Z"), combinedResults.get(0).getDisplayTime());
@@ -233,7 +233,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResultsWithDupe = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecordersWithDupe, 
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(3, combinedResultsWithDupe.size()); //2 rows for the reference readings at the same time, the recorder information is duplicated for each
 		assertEquals(Instant.parse("2013-10-28T09:53:00Z"), combinedResultsWithDupe.get(0).getDisplayTime());
@@ -286,7 +286,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResultsWithDupe = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecordersWithDupe, 
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(3, combinedResultsWithDupe.size()); //2 rows for the recorder readings at the same time, the reference information is duplicated for each
 		assertEquals(Instant.parse("2013-10-28T09:53:00Z"), combinedResultsWithDupe.get(0).getDisplayTime());
@@ -339,7 +339,7 @@ public class ReadingsTimeCombinerTest {
 		
 		List<SensorReadingSummaryReading> combinedResultsWithDupe = new ReadingsTimeCombiner().combine(
 				(List<Readings>) testRefsAndRecordersWithDupe, 
-				Arrays.asList(new String[] {"Reference", "ReferencePrimary", "REFERENCE_PRIMARY"}));
+				"Reference, ReferencePrimary, REFERENCE_PRIMARY");
 		
 		assertEquals(4, combinedResultsWithDupe.size()); //4 rows, one for each ref + rec permutation
 		

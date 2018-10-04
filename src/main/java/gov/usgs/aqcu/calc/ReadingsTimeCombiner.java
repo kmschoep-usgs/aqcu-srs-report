@@ -17,7 +17,7 @@ import gov.usgs.aqcu.model.SensorReadingSummaryReading;
  */
 public class ReadingsTimeCombiner {
 		
-	public List<SensorReadingSummaryReading> combine(List<Readings> readings, List<String> combineByFields) {
+	public List<SensorReadingSummaryReading> combine(List<Readings> readings, String combineByFields) {
 		
 		Map<String, List<SensorReadingSummaryReading>> referenceReadingsByKeyField = new HashMap<>() ;
 		Map<String, List<SensorReadingSummaryReading>> recorderReadingsByKeyField = new HashMap<>() ;

@@ -92,7 +92,7 @@ public class ReportBuilderService {
 			List<Readings> reading = readingsBuilderService.getAqcuFieldVisitsReadings(visit, fieldVisitData, primaryDescription.getParameter());
 			readings.addAll(reading);
 		}
-		srsReadings = readingsTimeCombiner.combine(readings, Arrays.asList(new String[] {READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM}));
+		srsReadings = readingsTimeCombiner.combine(readings, READING_TYPE_REF + "," + READING_TYPE_REF_PRIM + "," + ALT_READING_TYPE_REF_PRIM);
 		srsReadings = nearestTimePointCalculator.findNearest(srsReadings, timeSeriesCorrectedData, true);
 		srsReadings = nearestTimePointCalculator.findNearest(srsReadings, timeSeriesRawData, false);
 		

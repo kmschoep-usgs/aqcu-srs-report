@@ -102,7 +102,7 @@ public class ReportBuilderService {
 		report.setReportMetadata(getReportMetadata(requestParameters,
 			requestingUser,
 			primaryDescription.getLocationIdentifier(), 
-			primaryDescription.getIdentifier(),
+			primaryDescription.getParameter(),
 			primaryDescription.getUtcOffset(),
 			primaryDescription.getIdentifier(),
 			getReadingQualifiers(srsReadings)

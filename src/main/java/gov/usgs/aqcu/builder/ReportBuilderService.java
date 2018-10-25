@@ -38,9 +38,8 @@ public class ReportBuilderService {
 
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
-	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
-	private TimeSeriesDataRawService timeSeriesDataRawService;
-	private FieldVisitDescriptionsService fieldVisitDescriptionsService;
+	private TimeSeriesDataService timeSeriesDataService;
+	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	private FieldVisitDataService fieldVisitDataService;
 	private ReadingsBuilderService readingsBuilderService;
 	private QualifierLookupService qualifierLookupService;
@@ -49,17 +48,15 @@ public class ReportBuilderService {
 	public ReportBuilderService(
 		LocationDescriptionListService locationDescriptionListService,
 		TimeSeriesDescriptionListService timeSeriesDescriptionListService,
-		TimeSeriesDataCorrectedService timeSeriesDataCorrectedService,
-		TimeSeriesDataRawService timeSeriesDataRawService,
-		FieldVisitDescriptionsService  fieldVisitDescriptionsService,
+		TimeSeriesDataService timeSeriesDataService,
+		FieldVisitDescriptionService  fieldVisitDescriptionService,
 		FieldVisitDataService fieldVisitDataService,
 		ReadingsBuilderService readingsBuilderService,
 		QualifierLookupService qualifierLookupService) {
-		this.timeSeriesDataCorrectedService = timeSeriesDataCorrectedService;
-		this.timeSeriesDataRawService = timeSeriesDataRawService;
+		this.timeSeriesDataService = timeSeriesDataService;
 		this.locationDescriptionListService = locationDescriptionListService;
 		this.timeSeriesDescriptionListService = timeSeriesDescriptionListService;
-		this.fieldVisitDescriptionsService = fieldVisitDescriptionsService;
+		this.fieldVisitDescriptionService = fieldVisitDescriptionService;
 		this.fieldVisitDataService = fieldVisitDataService;
 		this.readingsBuilderService = readingsBuilderService;
 		this.qualifierLookupService = qualifierLookupService;
@@ -76,15 +73,32 @@ public class ReportBuilderService {
 		TimeSeriesDescription primaryDescription = timeSeriesDescriptionListService.getTimeSeriesDescription(requestParameters.getPrimaryTimeseriesIdentifier());
 		ZoneOffset primaryZoneOffset = TimeSeriesUtils.getZoneOffset(primaryDescription);
 		String primaryStationId = primaryDescription.getLocationIdentifier();
+		Boolean daily = TimeSeriesUtils.isDailyTimeSeries(primaryDescription);
 		
 		//Time Series Corrected Data
-		TimeSeriesDataServiceResponse timeSeriesCorrectedData = getCorrectedData(requestParameters, primaryZoneOffset);
+		TimeSeriesDataServiceResponse timeSeriesCorrectedData = timeSeriesDataService.get(
+			requestParameters.getPrimaryTimeseriesIdentifier(), 
+			requestParameters,
+			primaryZoneOffset,
+			daily,
+			false,
+			false,
+			null
+		);
 		
 		//Time Series Raw Data
-		TimeSeriesDataServiceResponse timeSeriesRawData = getRawData(requestParameters, primaryZoneOffset);
+		TimeSeriesDataServiceResponse timeSeriesRawData = timeSeriesDataService.get(
+			requestParameters.getPrimaryTimeseriesIdentifier(), 
+			requestParameters,
+			primaryZoneOffset,
+			daily,
+			true,
+			false,
+			null
+		);
 		
 		//Field Visits
-		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionsService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
+		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
 		
 		//Readings
 		for (FieldVisitDescription visit: fieldVisits) {
@@ -127,26 +141,6 @@ public class ReportBuilderService {
 		}
 		
 		return metadata;
-	}
-	
-	protected TimeSeriesDataServiceResponse getCorrectedData(SensorReadingSummaryRequestParameters requestParams, ZoneOffset zoneOffset) {
-		//Fetch Corrected Data
-		TimeSeriesDataServiceResponse dataResponse = timeSeriesDataCorrectedService.get(
-			requestParams.getPrimaryTimeseriesIdentifier(), 
-			requestParams.getStartInstant(zoneOffset), 
-			requestParams.getEndInstant(zoneOffset));
-
-		return dataResponse;
-	}
-	
-	protected TimeSeriesDataServiceResponse getRawData(SensorReadingSummaryRequestParameters requestParameters, ZoneOffset primaryZoneOffset) {
-		//Fetch Corrected Data
-		TimeSeriesDataServiceResponse dataResponse = timeSeriesDataRawService.get(
-			requestParameters.getPrimaryTimeseriesIdentifier(), 
-			requestParameters.getStartInstant(primaryZoneOffset), 
-			requestParameters.getEndInstant(primaryZoneOffset));
-
-		return dataResponse;
 	}
 	
 	protected List<Qualifier> getReadingQualifiers (List<SensorReadingSummaryReading> inReadings){

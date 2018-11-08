@@ -1,12 +1,8 @@
 package gov.usgs.aqcu.builder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.time.ZoneOffset;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +29,6 @@ public class ReportBuilderService {
 	private static final String READING_TYPE_REF_PRIM = "ReferencePrimary";
 	private static final String ALT_READING_TYPE_REF_PRIM = "REFERENCE_PRIMARY";
 	private static final String INSPECTION_ACTIVITY = "Inspection";
-
-	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
 
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;

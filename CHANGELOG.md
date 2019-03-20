@@ -17,4 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release - happy path.
 
-[Unreleased]: https://github.com/USGS-CIDA/aqcu-srs-report/compare/master...master
+[Unreleased]: https://github.com/USGS-CIDA/aqcu-srs-report/compare/aqcu-srs-report-0.0.1...master
+[0.0.1]: https://github.com/USGS-CIDA/aqcu-srs-report/tree/aqcu-srs-report-0.0.1
+

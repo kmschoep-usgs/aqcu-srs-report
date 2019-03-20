@@ -19,6 +19,7 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Insp
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Reading;
 
 import gov.usgs.aqcu.model.Readings;
+import gov.usgs.aqcu.util.LogExecutionTime;
 
 @Service
 public class ReadingsBuilderService {
@@ -26,10 +27,11 @@ public class ReadingsBuilderService {
 	
 	private static final String EXCLUDED_READING_TYPES = "ExtremeMax,ExtremeMin";
 
+        @LogExecutionTime
 	public List<Readings> getAqcuFieldVisitsReadings(FieldVisitDescription visit, FieldVisitDataServiceResponse fieldVisitResponse, String parameter){
 		try {
 			List<Readings> result = new ArrayList<>();
-	
+                        LOG.debug("Get inspection activities.");
 			InspectionActivity activity = fieldVisitResponse.getInspectionActivity();
 			
 			if(activity != null){
@@ -43,20 +45,26 @@ public class ReadingsBuilderService {
 					List<String> comments = new ArrayList<>();
 					
 					//comments attached to the inspection activity, linked by the reading's serial number 
+                                        LOG.debug("Get inspection activity comments.");
 					List<String> inspectionComments = inspectionCommentsBySerial.get(read.getSerialNumber());
 					if(inspectionComments != null) {
 						comments.addAll(inspectionComments);
 					}
 					
 					//comments already attached to the reading;
+                                        LOG.debug("Get reading comments and add to comments.");
 					String readingComments = read.getComments();
 					if(readingComments != null){
 						comments.add(readingComments);
 					}
 					
+                                        LOG.debug("Get field visit start time.");
 					Instant fieldVisitTemporal = visit.getStartTime();
+                                        
+                                        LOG.debug("Get field visit reading time.");
 					Instant readingTime = read.getTime(); 
 					
+                                        LOG.debug("Get readings visit details.");
 					Readings readingReport = new Readings(visit.getIdentifier(), 
 							visitStatus, 
 							activity.getParty(), 
@@ -72,8 +80,10 @@ public class ReadingsBuilderService {
 					result.add(readingReport);
 				}
 				//Filter only readings from selected parameter
+                                LOG.debug("Filter readings by selected parameter.");
 				result = selectedParameter(parameter, result);
 				
+                                LOG.debug("Filter readings by excluded types");
 				//Remove readings from excluded types
 				result.removeAll(excludedTypes(result));			
 			}			
@@ -92,16 +102,19 @@ public class ReadingsBuilderService {
 	 * @param inspections The list of Aquarius Inspections to extract serial numbers from
 	 * @return The extracted serial numbers and their associated comments
 	 */
+        @LogExecutionTime
 	private Map<String, List<String>> serialNumberToComment(List<Inspection> inspections) {
 		Map<String, List<String>> toRet = new HashMap<>();
 
 		for(Inspection inspection: inspections){
 			if(StringUtils.isNotBlank(inspection.getComments())) {
+                                LOG.debug("Get unique inspection serial numbers.");
 				List<String> previous = toRet.get(inspection.getSerialNumber());
 				if(previous == null || previous.isEmpty()){
 					previous = new ArrayList<>();
 					toRet.put(inspection.getSerialNumber(), previous);
 				}
+                                LOG.debug("Get comments for inspection serial number.");
 				previous.add(inspection.getComments());
 			}
 		}
@@ -109,8 +122,10 @@ public class ReadingsBuilderService {
 		return toRet;
 	}
 	
+        @LogExecutionTime
 	private List<Readings> excludedTypes(List<Readings> inReadings){
 		List<Readings> outReadings = new ArrayList<>();
+                LOG.debug("Get list of excluded reading types.");
 		for (Readings reading: inReadings) {
 			if (EXCLUDED_READING_TYPES.contains(reading.getType())) {
 				outReadings.add(reading);
@@ -119,8 +134,10 @@ public class ReadingsBuilderService {
 		return outReadings;
 	}
 	
+        @LogExecutionTime
 	public List<Readings> selectedParameter(String selectedParameter, List<Readings> inReadings){
 		List<Readings> outReadings = new ArrayList<>();
+                LOG.debug("Get readings by selected parameter.");
 		for (Readings reading: inReadings) {
 			if (reading.getParameter().equals(selectedParameter)) {
 				outReadings.add(reading);

@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Added jacoco-coveralls
+- Added performance logging for services
+- Added debug logging statements
+
+### Changed
+- Updated aqcu-framework to version 0.0.6-SNAPSHOT
+
+## [0.0.1]
+### Added
 - Initial release - happy path.
 
 [Unreleased]: https://github.com/USGS-CIDA/aqcu-srs-report/compare/master...master

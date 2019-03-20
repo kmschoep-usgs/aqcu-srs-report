@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.ZoneOffset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,9 +22,12 @@ import gov.usgs.aqcu.calc.NearestTimePointCalculator;
 import gov.usgs.aqcu.calc.ReadingsTimeCombiner;
 import gov.usgs.aqcu.model.*;
 import gov.usgs.aqcu.retrieval.*;
+import gov.usgs.aqcu.util.LogExecutionTime;
 
 @Service
 public class ReportBuilderService {
+        private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
+    
 	public static final String REPORT_TITLE = "Sensor Reading Summary";
 	public static final String REPORT_TYPE = "sensorreadingsummary";
 	private static final String READING_TYPE_REF = "Reference";
@@ -56,6 +61,7 @@ public class ReportBuilderService {
 		this.qualifierLookupService = qualifierLookupService;
 	}
 
+        @LogExecutionTime
 	public SensorReadingSummaryReport buildReport(SensorReadingSummaryRequestParameters requestParameters, String requestingUser) {
 		SensorReadingSummaryReport report = new SensorReadingSummaryReport();
 		List<Readings> readings = new ArrayList<>();
@@ -64,12 +70,17 @@ public class ReportBuilderService {
 		NearestTimePointCalculator nearestTimePointCalculator = new NearestTimePointCalculator();
 
 		//Primary TS Metadata
+                LOG.debug("Get primary time series metadata.");
 		TimeSeriesDescription primaryDescription = timeSeriesDescriptionListService.getTimeSeriesDescription(requestParameters.getPrimaryTimeseriesIdentifier());
+                LOG.debug("Get primary time series zone offset.");
 		ZoneOffset primaryZoneOffset = TimeSeriesUtils.getZoneOffset(primaryDescription);
+                LOG.debug("Get the primary time series station id");
 		String primaryStationId = primaryDescription.getLocationIdentifier();
+                LOG.debug("Get the daily series boolean flag");
 		Boolean daily = TimeSeriesUtils.isDailyTimeSeries(primaryDescription);
 		
 		//Time Series Corrected Data
+                LOG.debug("Get primary time series corrected data");
 		TimeSeriesDataServiceResponse timeSeriesCorrectedData = timeSeriesDataService.get(
 			requestParameters.getPrimaryTimeseriesIdentifier(), 
 			requestParameters,
@@ -81,6 +92,7 @@ public class ReportBuilderService {
 		);
 		
 		//Time Series Raw Data
+                LOG.debug("Get primary time series raw data.");
 		TimeSeriesDataServiceResponse timeSeriesRawData = timeSeriesDataService.get(
 			requestParameters.getPrimaryTimeseriesIdentifier(), 
 			requestParameters,
@@ -92,9 +104,11 @@ public class ReportBuilderService {
 		);
 		
 		//Field Visits
+                LOG.debug("Get field visits.");
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionService.getDescriptions(primaryStationId, primaryZoneOffset, requestParameters);
 		
 		//Readings
+                LOG.debug("Get readings for each field visit.");
 		for (FieldVisitDescription visit: fieldVisits) {
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier(), INSPECTION_ACTIVITY);
 			List<Readings> reading = readingsBuilderService.getAqcuFieldVisitsReadings(visit, fieldVisitData, primaryDescription.getParameter());
@@ -107,6 +121,7 @@ public class ReportBuilderService {
 		report.setReadings(srsReadings);
 		
 		//Report Metadata
+                LOG.debug("Get report metadata.");
 		report.setReportMetadata(getReportMetadata(requestParameters,
 			requestingUser,
 			primaryDescription.getLocationIdentifier(), 
@@ -119,6 +134,7 @@ public class ReportBuilderService {
 		return report;
 	}
 
+        @LogExecutionTime
 	protected SensorReadingSummaryReportMetadata getReportMetadata(SensorReadingSummaryRequestParameters requestParameters, String requestingUser, String stationId, String primaryParameter, Double utcOffset, String timeSeriesLabel, List<Qualifier> qualifierList) {
 		SensorReadingSummaryReportMetadata metadata = new SensorReadingSummaryReportMetadata();
 		metadata.setTitle(REPORT_TITLE);
@@ -131,15 +147,17 @@ public class ReportBuilderService {
 		metadata.setTimezone(AqcuTimeUtils.getTimezone(utcOffset));
 		
 		if(qualifierList != null && !qualifierList.isEmpty()) {
+                        LOG.debug("Get qualifier metadata for report metadata.");
 			metadata.setQualifierMetadata(qualifierLookupService.getByQualifierList(qualifierList));
 		}
 		
 		return metadata;
 	}
 	
+        @LogExecutionTime
 	protected List<Qualifier> getReadingQualifiers (List<SensorReadingSummaryReading> inReadings){
 		List<Qualifier> qualList = new ArrayList<>();
-		
+		LOG.debug("Get qualifiers for readings.");
 		for (SensorReadingSummaryReading srs: inReadings) {
 			qualList.addAll(srs.getQualifiers());
 		}

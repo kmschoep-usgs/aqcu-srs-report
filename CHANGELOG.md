@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added jacoco-coveralls
 - Added performance logging for services
 - Added debug logging statements
+- Merged Docker config into repo
 
 ### Changed
 - Updated aqcu-framework to version 0.0.6-SNAPSHOT

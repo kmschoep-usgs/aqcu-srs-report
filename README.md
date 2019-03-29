@@ -11,7 +11,7 @@ It is built as a Docker container.
 
 Configured functionality includes:
 
-- **Swagger API Documentation** https://localhost:7503/swagger-ui.html
+- **Swagger API Documentation** https://localhost:7506/swagger-ui.html
 
 ## Running the Application
 

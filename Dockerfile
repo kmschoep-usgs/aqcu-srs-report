@@ -11,8 +11,8 @@ ARG SONAR_LOGIN
 ENV SONAR_LOGIN=$SONAR_LOGIN
 
 RUN if getent ahosts "sslhelp.doi.net" > /dev/null 2>&1; then \
-		wget 'http://sslhelp.doi.net/docs/DOIRootCA2.cer' && \
-		keytool -import -trustcacerts -file DOIRootCA2.cer -alias DOIRootCA2.cer -keystore $JAVA_HOME/jre/lib/security/cacerts -noprompt -storepass changeit; \
+		wget 'https://s3-us-west-2.amazonaws.com/prod-owi-resources/resources/InstallFiles/SSL/DOIRootCA.cer' && \
+		keytool -import -trustcacerts -file DOIRootCA.cer -alias DOIRootCA.cer -keystore $JAVA_HOME/jre/lib/security/cacerts -noprompt -storepass changeit; \
 	fi
 
 COPY pom.xml /build/pom.xml

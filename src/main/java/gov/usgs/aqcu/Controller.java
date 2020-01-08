@@ -47,9 +47,9 @@ public class Controller {
 	}
 	
 	@GetMapping(value="/rawData", produces={MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<SensorReadingSummaryReport> getReportRawData(@Validated SensorReadingSummaryRequestParameters requestParameters) throws Exception {
+	public ResponseEntity<String> getReportRawData(@Validated SensorReadingSummaryRequestParameters requestParameters) throws Exception {
 		SensorReadingSummaryReport report = reportBuilderService.buildReport(requestParameters, getRequestingUser());
-		return new ResponseEntity<SensorReadingSummaryReport>(report, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<String>(gson.toJson(report), new HttpHeaders(), HttpStatus.OK);
 	}
 
 	String getRequestingUser() {

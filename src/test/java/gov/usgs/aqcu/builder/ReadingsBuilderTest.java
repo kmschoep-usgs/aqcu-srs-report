@@ -105,7 +105,16 @@ public class ReadingsBuilderTest {
 			.setValue(new DoubleWithDisplay().setDisplay("1.21"))
 			.setSerialNumber("Unspecified");
 	
-	private ArrayList<Reading> readingList = new ArrayList<>(Arrays.asList(recReading1, recReading2, recReading3, refReading1, refReading2, refReading3));
+	private Reading refReadingNullCertainty = new Reading()
+			.setParameter("Precipitation")
+			.setMonitoringMethod("Single tipping bucket")
+			.setReadingType(ReadingType.ExtremeMax)
+			.setTime(Instant.parse("2017-01-01T10:08:00Z"))
+			.setUncertainty(null)
+			.setValue(new DoubleWithDisplay().setDisplay("1.21"))
+			.setSerialNumber("Unspecified");
+	
+	private ArrayList<Reading> readingList = new ArrayList<>(Arrays.asList(recReading1, recReading2, recReading3, refReading1, refReading2, refReading3, refReadingNullCertainty));
 	
 	private ArrayList<Inspection> inspectionList = new ArrayList<>(Arrays.asList(inspection1));
 	

@@ -74,7 +74,7 @@ public class ReadingsBuilderService {
 							read.getMonitoringMethod(),
 							readingTime, 
 							read.getValue().getDisplay(), 
-							read.getUncertainty().getDisplay(), 
+							read.getUncertainty() != null ? read.getUncertainty().getDisplay() : null, 
 							fieldVisitTemporal, 
 							comments);
 					result.add(readingReport);
